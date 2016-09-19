@@ -265,8 +265,7 @@ public class ImgIO {
         }
         
         return img;
-    }
-    
+    }    
     
     /*
      * Accepts BufferedImage, returns double[][][] array of YCbCr values
@@ -292,30 +291,7 @@ public class ImgIO {
         
         return out;
     }
-    /*
-    public static int[][] StripChannel(int[][][] trichan, int chan) {
-        int[][] singchan = new int[trichan.length][trichan[0].length];
-        
-        for (int r = 0; r < singchan.length; r++) {
-            for (int c = 0; c < singchan[0].length; c ++) {
-                singchan[r][c] = trichan[r][c][chan];
-            }
-        }
-        
-        return singchan;
-    }
     
-    public static double[][] StripChannel(double[][][] trichan, int chan) {
-        double[][] singchan = new double[trichan.length][trichan[0].length];
-        
-        for (int r = 0; r < singchan.length; r++) {
-            for (int c = 0; c < singchan[0].length; c ++) {
-                singchan[r][c] = trichan[r][c][chan];
-            }
-        }
-        return singchan;
-    }
-    */
     /*
      * Accepts 32-bit pixel value from BufferedImage, returns int[][][] array of RGB values
      */

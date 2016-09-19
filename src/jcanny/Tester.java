@@ -47,7 +47,7 @@ public class Tester {
             BufferedImage input = ImageIO.read(new File(imgFileName));
             BufferedImage output = JCanny.CannyEdges(input, CANNY_THRESHOLD_RATIO);
             ImageIO.write(output, imgExt, new File(imgOutFile));
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             System.out.println("ERROR ACCESING IMAGE FILE:\n" + ex.getMessage());
         }
     }

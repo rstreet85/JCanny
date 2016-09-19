@@ -28,7 +28,7 @@ public class Sobel {
         }
         
         int[][] out = new int[raw.length - 2][raw[0].length - 2];
-        int[][] mask = { {-1,0,1}, {-2,0,2}, {-1,0,1} };
+        int[][] mask = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
         
         for (int r = 1; r < raw.length - 1; r++) {
             for (int c = 1; c < raw[0].length - 1; c++) {
@@ -57,7 +57,7 @@ public class Sobel {
         }
         
         int[][] out = new int[raw.length - 2][raw[0].length - 2];
-        int[][] mask = { {-1,-2,-1}, {0,0,0}, {1,2,1} };
+        int[][] mask = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };
         
         for (int r = 1; r < raw.length - 1; r++) {
             for (int c = 1; c < raw[0].length - 1; c++) {

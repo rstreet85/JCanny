@@ -142,21 +142,21 @@ public class JCanny {
         for (int r = 1; r < mag.length - 1; r++) {
             for (int c = 1; c < mag[0].length - 1; c++) {
                 if (mag[r][c] >= tHi) {
-                    bin[r-1][c-1] = 0;
+                    bin[r - 1][c - 1] = 0;
                 } else if (mag[r][c] >= tLo) {
                     boolean connected = false;
                     
                     for (int nr = -1; nr < 2; nr++) {
                         for (int nc = -1; nc < 2; nc++) {
-                            if (mag[r+nr][c+nc] >= tHi) {
+                            if (mag[r + nr][c + nc] >= tHi) {
                                 connected = true;
                             }
                         }
                     }
                     
-                    bin[r-1][c-1] = (connected) ? 0 : 255;
+                    bin[r - 1][c - 1] = (connected) ? 0 : 255;
                 } else {
-                    bin[r-1][c-1] = 255;
+                    bin[r - 1][c - 1] = 255;
                 }
             }
         }
