@@ -22,8 +22,8 @@ import javax.imageio.ImageIO;
 
 public class Tester {
     
-    private static final double CANNY_THRESHOLD_RATIO = .2;
-    private static final int CANNY_STD_DEV = 3;
+    private static final double CANNY_THRESHOLD_RATIO = .2; //Suggested range .2 - .4
+    private static final int CANNY_STD_DEV = 1;             //Range 1-3
     
     private static String imgFileName;
     private static String imgOutFile = "";

@@ -145,7 +145,7 @@ public class JCanny {
         for (int r = 1; r < mag.length - 1; r++) {
             for (int c = 1; c < mag[0].length - 1; c++) {
                 if (mag[r][c] >= tHi) {
-                    bin[r - 1][c - 1] = 0;
+                    bin[r - 1][c - 1] = 255;
                 } else if (mag[r][c] >= tLo) {
                     boolean connected = false;
                     
