@@ -22,7 +22,8 @@ import javax.imageio.ImageIO;
 
 public class Tester {
     
-    private static final double CANNY_THRESHOLD_RATIO = 2.0;
+    private static final double CANNY_THRESHOLD_RATIO = .2;
+    private static final int CANNY_STD_DEV = 3;
     
     private static String imgFileName;
     private static String imgOutFile = "";
@@ -44,11 +45,10 @@ public class Tester {
         //Sample JCanny usage
         try {
             BufferedImage input = ImageIO.read(new File(imgFileName));
-            BufferedImage output = JCanny.CannyEdges(input, CANNY_THRESHOLD_RATIO);
+            BufferedImage output = JCanny.CannyEdges(input, CANNY_STD_DEV, CANNY_THRESHOLD_RATIO);
             ImageIO.write(output, imgExt, new File(imgOutFile));
         } catch (Exception ex) {
             System.out.println("ERROR ACCESING IMAGE FILE:\n" + ex.getMessage());
         }
-    }
-    
+    }    
 }

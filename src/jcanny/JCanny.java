@@ -26,6 +26,8 @@ public class JCanny {
     private static int tLo;         //Hysteresis low threshold; possible edge pixel, examine further.
     private static int stDev;       //Standard deviation in magnitude of image's pixels
     private static int mean;        //Mean of magnitude in image's pixels
+    private static int numDev;      //Number of standard deviations above mean for high threshold
+    private static double tFract;   //Low threshold is this fraction of high threshold
     private static int[][] dir;     //Gradient direction mask. Equals Math.atan2(gy/gx)
     private static int[][] gx;      //Mask resulting from horizontal 3x3 Sobel mask
     private static int[][] gy;      //Mask resulting from vertical 3x3 Sobel mask
@@ -36,14 +38,15 @@ public class JCanny {
      * Currently computes hysteresis thresholds based on an a given ratio, but in the future all parameters will be passed 
      * in from an external source to allow another program to optimize them.
      */
-    public static BufferedImage CannyEdges(BufferedImage img, double ratio) throws Exception {
-        int[][] raw = ImgIO.GSArray(img);
-        
-        if (ratio <= 0) {  
-            throw new IllegalArgumentException("ERROR: Hysteresis threshold ratio must be greater than 0!");
+    public static BufferedImage CannyEdges(BufferedImage img, int numberDeviations, double fract) throws Exception {
+        if (fract <= 0 || fract >= 1) {  
+            throw new IllegalArgumentException("ERROR: Hysteresis threshold ratio in range 0 - 1.0!");
         }
         
+        int[][] raw = ImgIO.GSArray(img);
         int[][] blurred = Gaussian.BlurGS(raw, GAUSSIAN_RADIUS, GAUSSIAN_INTENSITY);
+        numDev = numberDeviations;
+        tFract = fract;
         
         gx = Sobel.Horizontal(blurred);  //Convolved with 3x3 horizontal Sobel mask
         gy = Sobel.Vertical(blurred);    //Convolved with 3x3 vertical Sobel mask
@@ -136,8 +139,8 @@ public class JCanny {
     
     private static int[][] Hysteresis() {
         int[][] bin = new int[mag.length - 2][mag[0].length - 2];
-        tHi = (int) (mean + 1.25 * stDev);  //Any magnitude 10% of the max or higher is automatically an edge
-        tLo = (int) (tHi * .2);             //Any magnitude less than 60% of high threshold is definitely not an edge
+        tHi = mean + (numDev * stDev);  //Magnitude greater than or equal to high threshold is an edge pixel
+        tLo = (int) (tHi * tFract);     //Magnitude less than low threshold not an edge, equal or greater possible edge
         
         for (int r = 1; r < mag.length - 1; r++) {
             for (int c = 1; c < mag[0].length - 1; c++) {
@@ -154,9 +157,9 @@ public class JCanny {
                         }
                     }
                     
-                    bin[r - 1][c - 1] = (connected) ? 0 : 255;
+                    bin[r - 1][c - 1] = (connected) ? 255 : 0;
                 } else {
-                    bin[r - 1][c - 1] = 255;
+                    bin[r - 1][c - 1] = 0;
                 }
             }
         }
