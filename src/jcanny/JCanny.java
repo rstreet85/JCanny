@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2016 Robert Streetman
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -13,6 +13,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * @author Robert Streetman
  */
 package jcanny;
 
@@ -33,10 +35,19 @@ public class JCanny {
     private static int[][] gy;      //Mask resulting from vertical 3x3 Sobel mask
     private static double[][] mag;  //Direction mask. Equals Math.sqrt(gx^2 * gy^2)
     
-    /*
+    /**
      * This function accepts a single-channel (grayscale, red, blue, Y, etc) image and returns an image with detected edges.
      * Currently computes hysteresis thresholds based on an a given ratio, but in the future all parameters will be passed 
      * in from an external source to allow another program to optimize them.
+     * 
+     * @param img               A BufferedImage that is to undergo Canny edge detector. 
+     * @param numberDeviations  Set high threshold as a function of number of standard deviations above the mean.
+     *                          mean + std. dev: 68% of pixel magnitudes fall below this value
+     *                          mean + 2 * std. dev: 95% of pixel magnitudes fall below this value
+     *                          mean + 3 * std. dev: 99.7% of pixel magnitudes fall below this value
+     * @param fract             Set low threshold as a fraction of the high threshold
+     * @return                  A binary image of the edges in the input image.
+     * @throws Exception
      */
     public static BufferedImage CannyEdges(BufferedImage img, int numberDeviations, double fract) throws Exception {
         if (fract <= 0 || fract >= 1) {  
@@ -53,43 +64,57 @@ public class JCanny {
         
         Magnitude(gx, gy);    //Find the gradient magnitude at each pixel
         Direction(gx, gy);    //Find the gradient direction at each pixel
-        Suppression();              //Using the direction and magnitude images, identify candidate points
+        Suppression();        //Using the direction and magnitude images, identify candidate points
         
         BufferedImage edges = ImgIO.GSImg(Hysteresis());
         
         return edges;
     }
     
+    /**
+     * Using horizontal & vertical Sobel convolutions, calculate gradient magnitude at each pixel
+     */
     private static void Magnitude(int[][] gx, int[][] gy) {
         int sum = 0;
         int var = 0;
-        mag = new double[gx.length][gx[0].length];
+        int height = gx.length;
+        int width = gx[0].length;
+        mag = new double[height][width];
         
-        for (int r = 0; r < gx.length; r++) {
-            for (int c = 0; c < gx[0].length; c++) {
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
                 mag[r][c] = Math.sqrt(gx[r][c] * gx[r][c] + gy[r][c] * gy[r][c]);
+                
                 sum += mag[r][c];
             }
         }
         
-        mean = sum / (mag.length * mag[0].length);
+        mean = sum / (height * width);
         
         //Get variance
-        for (int r = 0; r < mag.length; r++) {
-            for (int c = 0; c < mag[0].length; c++) {
-                var += (mag[r][c] - mean) * (mag[r][c] - mean);
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
+                double magnitude = mag[r][c];
+                
+                var += (magnitude - mean) * (magnitude - mean);
             }
         }
         
-        stDev = (int) Math.sqrt(var / (mag.length * mag[0].length));
+        stDev = (int) Math.sqrt(var / (height * width));
     }
     
+    /**
+     * Using horizontal & vertical Sobel convolutions, calculate gradient direction at each pixel
+     */
     private static void Direction(int[][] gx, int[][] gy) {
-        dir = new int[gx.length][gx[0].length];
+        double piRad = 180 / Math.PI;
+        int height = gx.length;
+        int width = gx[0].length;
+        dir = new int[height][width];
         
-        for (int r = 0; r < gx.length; r++) {
-            for (int c = 0; c < gx[0].length; c++) {
-                double angle = Math.atan2(gy[r][c], gx[r][c]) * (180 / Math.PI);    //Convert radians to degrees
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
+                double angle = Math.atan2(gy[r][c], gx[r][c]) * piRad;    //Convert radians to degrees
                 
                 if (angle < 0) {
                     angle += 360.;  //Check for negative angles
@@ -109,25 +134,32 @@ public class JCanny {
         }
     }
     
+    /**
+     * Using gradient magnitude & direction, suppress all pixels that are not greater than neighbors along direction 
+     */
     private static void Suppression() throws Exception {
-        for (int r = 1; r < mag.length - 1; r++) {
-            for (int c = 1; c < mag[0].length - 1; c++) {
+        int height = mag.length - 1;
+        int width = mag[0].length - 1;
+        
+        for (int r = 1; r < height; r++) {
+            for (int c = 1; c < width; c++) {
                 int direction = dir[r][c];
+                double magnitude = mag[r][c];
                 
                 if (direction == 0) {
-                    if (mag[r][c] < mag[r][c - 1] && mag[r][c] < mag[r][c + 1]) {
+                    if (magnitude < mag[r][c - 1] && magnitude < mag[r][c + 1]) {
                         mag [r - 1][c - 1] = 0;
                     }
                 } else if (direction == 45) {
-                    if (mag[r][c] < mag[r - 1][c + 1] && mag[r][c] < mag[r + 1][c - 1]) {
+                    if (magnitude < mag[r - 1][c + 1] && magnitude < mag[r + 1][c - 1]) {
                         mag [r - 1][c - 1] = 0;
                     }
                 } else if (direction == 90) {
-                    if (mag[r][c] < mag[r - 1][c] && mag[r][c] < mag[r + 1][c]) {
+                    if (magnitude < mag[r - 1][c] && magnitude < mag[r + 1][c]) {
                         mag [r - 1][c - 1] = 0;
                     }
                 } else if (direction == 135) {
-                    if (mag[r][c] < mag[r - 1][c - 1] && mag[r][c] < mag[r + 1][c + 1]) {
+                    if (magnitude < mag[r - 1][c - 1] && magnitude < mag[r + 1][c + 1]) {
                         mag [r - 1][c - 1] = 0;
                     }
                 } else {
@@ -137,16 +169,28 @@ public class JCanny {
         }
     }
     
+    /**
+     * Eliminate 'false' edge pixels. A pixel is definitely an edge if its magnitude is greater than
+     * or equal to high threshold. If magnitude is less than low threshold, it is not an edge and is
+     * discarded. If magnitude is greater than or equal to low threshold AND lower than high threshold,
+     * pixel is edge if and only if it is connected to a pixel of magnitude greater than or equal to
+     * high threshold.
+     */
     private static int[][] Hysteresis() {
-        int[][] bin = new int[mag.length - 2][mag[0].length - 2];
+        int height = mag.length - 1;
+        int width = mag[0].length - 1;
+        int[][] bin = new int[height - 1][width - 1];
+        
         tHi = mean + (numDev * stDev);  //Magnitude greater than or equal to high threshold is an edge pixel
         tLo = (int) (tHi * tFract);     //Magnitude less than low threshold not an edge, equal or greater possible edge
         
-        for (int r = 1; r < mag.length - 1; r++) {
-            for (int c = 1; c < mag[0].length - 1; c++) {
-                if (mag[r][c] >= tHi) {
+        for (int r = 1; r < height; r++) {
+            for (int c = 1; c < width; c++) {
+                double magnitude = mag[r][c];
+                
+                if (magnitude >= tHi) {
                     bin[r - 1][c - 1] = 255;
-                } else if (mag[r][c] >= tLo) {
+                } else if (magnitude >= tLo) {
                     boolean connected = false;
                     
                     for (int nr = -1; nr < 2; nr++) {

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2016 Robert Streetman
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -13,6 +13,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * @author Robert Streetman
  */
 package jcanny;
 
@@ -28,10 +30,12 @@ public class ImgIO {
             throw new IllegalArgumentException("ERROR: Source image is null!");
         }
         
-        int[][][] rgb = new int[img.getHeight()][img.getWidth()][3];
+        int height = img.getHeight();
+        int width = img.getWidth();
+        int[][][] rgb = new int[height][width][3];
         
-        for (int i = 0; i < rgb.length; i++) {
-            for (int j = 0; j < rgb[0].length; j++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 rgb[i][j] = intRGB(img.getRGB(j, i));
             }
         }
@@ -43,14 +47,17 @@ public class ImgIO {
      * Accepts int[][][] array of RGB values, returns BufferedImage
      */
     public static BufferedImage RGBImg(int[][][] raw) {
-        if (raw.length < 1 || raw[0].length < 1 || raw[0][0].length != 3) {
+        int height = raw.length;
+        int width = raw[0].length;
+        
+        if (height < 1 || width < 1 || raw[0][0].length != 3) {
             throw new IllegalArgumentException("ERROR: Malformed RGB array!");
         }
         
-        BufferedImage img = new BufferedImage(raw[0].length, raw.length, BufferedImage.TYPE_INT_RGB);
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         
-        for (int i = 0; i < raw.length; i++) {
-            for (int j = 0; j < raw[0].length; j++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 img.setRGB(j, i, (raw[i][j][0] << 16) | (raw[i][j][1] << 8) | (raw[i][j][2]));
             }
         }
@@ -66,10 +73,12 @@ public class ImgIO {
             throw new IllegalArgumentException("ERROR: Source image is null!");
         }
         
-        int[][] gs = new int[img.getHeight()][img.getWidth()];
+        int height = img.getHeight();
+        int width = img.getWidth();
+        int[][] gs = new int[height][width];
         
-        for (int i = 0; i < gs.length; i++) {
-            for (int j = 0; j < gs[0].length; j++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 gs[i][j] = intGS(img.getRGB(j, i));
             }
         }
@@ -81,14 +90,17 @@ public class ImgIO {
      * Accepts int[][] array of grayscale values, returns BufferedImage
      */
     public static BufferedImage GSImg(int[][] raw) {
-        if (raw.length < 1 || raw[0].length < 1) {
+        int height = raw.length;
+        int width = raw[0].length;
+        
+        if (height < 1 || width < 1) {
             throw new IllegalArgumentException("ERROR: Malformed grayscale array!");
         }
         
-        BufferedImage img = new BufferedImage(raw[0].length, raw.length, BufferedImage.TYPE_INT_RGB);
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         
-        for (int i = 0; i < raw.length; i++) {
-            for (int j = 0; j < raw[0].length; j++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 img.setRGB(j, i, (raw[i][j] << 16) | (raw[i][j] << 8) | (raw[i][j]));
             }
         }
@@ -104,17 +116,18 @@ public class ImgIO {
             throw new IllegalArgumentException("ERROR: Source image is null!");
         }
         
-        double[][][] hsv = new double[img.getHeight()][img.getWidth()][];
+        int height = img.getHeight();
+        int width = img.getWidth();
+        double[][][] hsv = new double[height][width][];
         
-        for (int r = 0; r < hsv.length; r++) {
-            for (int c = 0; c < hsv[0].length; c++) {
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
                 int[] rgb = intRGB(img.getRGB(c, r));
-                double cmax, cmin;                  //HSV based on range between highest & lowest intensity
+                double cmax, cmin;                  //Min & Max intensity values
                 double[] rgbprime = new double[3];  //RGB values scaled from 0-255 to 0-1
-                double[] pixelHSV = new double[3];
-             
+                double[] pixelHSV = new double[3];  //HSV value for pixel
                 
-                for (int i = 0; i < rgb.length; i++) {
+                for (int i = 0; i < 3; i++) {
                     rgbprime[i] = (double) rgb[i] / 255.;
                 }
                 
@@ -157,17 +170,20 @@ public class ImgIO {
             throw new IllegalArgumentException("ERROR: Source image is null!");
         }
         
-        double[][][] hsi = new double[img.getHeight()][img.getWidth()][];
+        int height = img.getHeight();
+        int width = img.getWidth();
+        double[][][] hsi = new double[height][width][];
+        double piRad = 180 / Math.PI;
         
-        for (int r = 0; r < hsi.length; r++) {
-            for (int c = 0; c < hsi[0].length; c++) {
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
                 int[] rgb = intRGB(img.getRGB(c, r));
                 double[] pixelHSI = new double[3];
                 double cos1 = rgb[0] - 0.5 * rgb[1] - 0.5 * rgb[2];
                 double cos2 = Math.sqrt(rgb[0] * rgb[0] + rgb[1] * rgb[1] + rgb[2] * rgb[2]
                         - rgb[0] * rgb[1] - rgb[0] * rgb[2] - rgb[1] * rgb[2]);
-                pixelHSI[0] = Math.acos(cos1 / cos2);
-                pixelHSI[0] *= (180 / Math.PI);
+                
+                pixelHSI[0] = Math.acos(cos1 / cos2) * piRad;
                 
                 if (rgb[1] < rgb[2]) {
                     pixelHSI[0] = 360 - pixelHSI[0];
@@ -190,10 +206,12 @@ public class ImgIO {
             throw new IllegalArgumentException("ERROR: Source image is null!");
         }
         
-        double[][][] tsl = new double[img.getHeight()][img.getWidth()][];
+        int height = img.getHeight();
+        int width = img.getWidth();
+        double[][][] tsl = new double[height][width][];
         
-        for (int r = 0; r < tsl.length; r++) {
-            for (int c = 0; c < tsl[0].length; c++) {
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
                 int[] rgb = intRGB(img.getRGB(c, r));
                 double sum = rgb[0] + rgb[1] + rgb[2];
                 double gPrime = (double) rgb[1] / sum;
@@ -221,14 +239,17 @@ public class ImgIO {
      * Accepts double[][][] array of HSV values, returns BufferedImage
      */
     public static BufferedImage HSVImg(double[][][] raw) {
-        if (raw.length < 1 || raw[0].length < 1 || raw[0][0].length != 3) {
+        int height = raw.length;
+        int width = raw[0].length;
+        
+        if (height < 1 || width < 1 || raw[0][0].length != 3) {
             throw new IllegalArgumentException("ERROR: Malformed RGB array!");
         }
         
-        BufferedImage img = new BufferedImage(raw[0].length, raw.length, BufferedImage.TYPE_INT_RGB);
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         
-        for (int r = 0; r < raw.length; r++) {
-            for (int c = 0; c < raw[0].length; c++) {
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
                 int[] rgb = new int [3];
                 
                 rgb[0] = (int) raw[r][c][0] * 255;
@@ -246,14 +267,17 @@ public class ImgIO {
      * Accepts double[][][] array of HSI values, returns BufferedImage
      */
     public static BufferedImage HSIImg(double[][][] raw) {
-        if (raw.length < 1 || raw[0].length < 1 || raw[0][0].length != 3) {
+        int height = raw.length;
+        int width = raw[0].length;
+        
+        if (height < 1 || width < 1 || raw[0][0].length != 3) {
             throw new IllegalArgumentException("ERROR: Malformed RGB array!");
         }
         
-        BufferedImage img = new BufferedImage(raw[0].length, raw.length, BufferedImage.TYPE_INT_RGB);
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         
-        for (int r = 0; r < raw.length; r++) {
-            for (int c = 0; c < raw[0].length; c++) {
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
                 int[] rgb = new int [3];
                 
                 rgb[0] = (int) raw[r][c][0] * 255;
@@ -275,10 +299,12 @@ public class ImgIO {
             throw new IllegalArgumentException("ERROR: Source image is null!");
         }
         
-        double[][][] out = new double[img.getHeight()][img.getWidth()][3];
+        int height = img.getHeight();
+        int width = img.getWidth();
+        double[][][] out = new double[height][width][3];
         
-        for (int i = 0; i < out.length; i++) {
-            for (int j = 0; j < out[0].length; j++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 int[] rgb = intRGB(img.getRGB(j, i));
                 //Y
                 out[i][j][0] = 16 + (0.2568 * rgb[0] + 0.5022 * rgb[1] + 0.0975 * rgb[2]);

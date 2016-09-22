@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2016 Robert Streetman
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -13,6 +13,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * @author Robert Streetman
  */
 package jcanny;
 
@@ -25,17 +27,21 @@ public class Gaussian {
     public static int[][][] BlurRGB(int[][][] raw, int rad, double intens) {
         double[] mask = new double[2 * rad + 1];
         double norm = 0.;
-        int[][][] outRGB = new int[raw.length - 2 * rad][raw[0].length - 2 * rad][3];
+        double sqrt2pi = Math.sqrt(2 * Math.PI);
+        int height = raw.length;
+        int width = raw[0].length;
+        int[][][] outRGB = new int[height - 2 * rad][width - 2 * rad][3];
         
         for (int x = -rad; x < rad + 1; x++) {   //Create Gaussian mask
             double exp = Math.exp(-((x * x) / (2 * intens * intens)));
             
-            mask[x + rad] = (1 / (Math.sqrt(2 * Math.PI) * intens)) * exp;
+            //mask[x + rad] = (1 / (Math.sqrt(2 * Math.PI) * intens)) * exp;
+            mask[x + rad] = (1 / (sqrt2pi * intens)) * exp;
             norm += mask[x + rad];
         }
         
-        for (int r = rad; r < raw.length - rad; r++) {   //Convolve image with mask horizontally
-            for (int c = rad; c < raw[0].length - rad; c++) {
+        for (int r = rad; r < height - rad; r++) {   //Convolve image with mask horizontally
+            for (int c = rad; c < width - rad; c++) {
                 double[] sum = new double[3];
                 
                 for (int mr = -rad; mr < rad + 1; mr++) {
@@ -51,8 +57,8 @@ public class Gaussian {
             }
         }
         
-        for (int r = rad; r < raw.length - rad; r++) {   //Convolve image with mask vertically
-            for (int c = rad; c < raw[0].length - rad; c++) {
+        for (int r = rad; r < height - rad; r++) {   //Convolve image with mask vertically
+            for (int c = rad; c < width - rad; c++) {
                 double[] sum = new double[3];
                 
                 for (int mr = -rad; mr < rad + 1; mr++) {
@@ -76,27 +82,31 @@ public class Gaussian {
      * Returns int[][] array of GS values.
      */
     public static int[][] BlurGS (int[][] raw, int rad, double intens) {
-        if (raw.length < 2 * rad + 1 || raw[0].length < 2 * rad + 1) {
+        int height = raw.length;
+        int width = raw[0].length;
+        
+        if (height < 2 * rad + 1 || width < 2 * rad + 1) {
             throw new IllegalArgumentException("ERROR: Image size too small for Gaussian blur!");
         }
         
         if (rad <= 0 || intens <= 0) {
-            throw new IllegalArgumentException("ERROR: Image size too small for Gaussian blur!");
+            throw new IllegalArgumentException("ERROR: Illegal Gaussian filter parameters!");
         }
         
         double[] mask = new double[2 * rad + 1];
         double norm = 0.;
-        int[][] outGS = new int[raw.length - 2 * rad][raw[0].length - 2 * rad];
+        double sqrt2pi = Math.sqrt(2 * Math.PI);
+        int[][] outGS = new int[height - 2 * rad][width - 2 * rad];
         
         for (int x = -rad; x < rad + 1; x++) {   //Create Gaussian mask
             double exp = Math.exp(-((x * x) / (2 * intens * intens)));
             
-            mask[x + rad] = (1 / (Math.sqrt(2 * Math.PI) * intens)) * exp;
+            mask[x + rad] = (1 / (sqrt2pi * intens)) * exp;
             norm += mask[x + rad];
         }
         
-        for (int r = rad; r < raw.length - rad; r++) {   //Convolve image with mask horizontally
-            for (int c = rad; c < raw[0].length - rad; c++) {
+        for (int r = rad; r < height - rad; r++) {   //Convolve image with mask horizontally
+            for (int c = rad; c < width - rad; c++) {
                 double sum = 0.;
                 
                 for (int mr = -rad; mr < rad + 1; mr++) {
@@ -108,8 +118,8 @@ public class Gaussian {
             }
         }
         
-        for (int r = rad; r < raw.length - rad; r++) {   //Convolve image with mask vertically
-            for (int c = rad; c < raw[0].length - rad; c++) {
+        for (int r = rad; r < height - rad; r++) {   //Convolve image with mask vertically
+            for (int c = rad; c < width - rad; c++) {
                 double sum = 0.;
                 
                 for(int mr = -rad; mr < rad + 1; mr++) {

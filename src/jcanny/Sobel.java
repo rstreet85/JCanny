@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2016 Robert Streetman
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -13,6 +13,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * @author Robert Streetman
  */
 package jcanny;
 
@@ -23,15 +25,18 @@ public class Sobel {
      * and returns int[][] array of pixel values.
      */
     public static int[][] Horizontal(int[][] raw) {
-        if (raw.length < 3 || raw[0].length < 3) {
+        int height = raw.length;
+        int width = raw[0].length;
+        
+        if (height < 3 || width < 3) {
             throw new IllegalArgumentException("ERROR: Image too small for Sobel Mask!");
         }
         
-        int[][] out = new int[raw.length - 2][raw[0].length - 2];
+        int[][] out = new int[height - 2][width - 2];
         int[][] mask = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
         
-        for (int r = 1; r < raw.length - 1; r++) {
-            for (int c = 1; c < raw[0].length - 1; c++) {
+        for (int r = 1; r < height - 1; r++) {
+            for (int c = 1; c < width - 1; c++) {
                 int sum = 0;
                 
                 for (int kr = -1; kr < 2; kr++) {
@@ -52,15 +57,18 @@ public class Sobel {
      * and returns int[][] array of pixel values.
      */
     public static int[][] Vertical(int[][] raw) {
-        if (raw.length < 3 || raw[0].length < 3) {
+        int height = raw.length;
+        int width = raw[0].length;
+        
+        if (height < 3 || width < 3) {
             throw new IllegalArgumentException("ERROR: Image too small for Sobel Mask!");
         }
         
-        int[][] out = new int[raw.length - 2][raw[0].length - 2];
+        int[][] out = new int[height - 2][width - 2];
         int[][] mask = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };
         
-        for (int r = 1; r < raw.length - 1; r++) {
-            for (int c = 1; c < raw[0].length - 1; c++) {
+        for (int r = 1; r < height - 1; r++) {
+            for (int c = 1; c < width - 1; c++) {
                 int sum = 0;
                 
                 for (int kr = -1; kr < 2; kr++) {

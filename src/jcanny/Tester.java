@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2016 Robert Streetman
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -13,6 +13,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * @author Robert Streetman
  */
 package jcanny;
 
@@ -22,8 +24,8 @@ import javax.imageio.ImageIO;
 
 public class Tester {
     
-    private static final double CANNY_THRESHOLD_RATIO = .2; //Suggested range .2 - .4
-    private static final int CANNY_STD_DEV = 1;             //Range 1-3
+    private static final double CANNY_THRESHOLD_RATIO = .4; //Suggested range .2 - .4
+    private static final int CANNY_STD_DEV = 3;             //Range 1-3
     
     private static String imgFileName;
     private static String imgOutFile = "";
