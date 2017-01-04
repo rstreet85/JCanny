@@ -19,28 +19,33 @@
 package jcanny;
 
 public class Gaussian {
+    private static final double SQRT2PI = Math.sqrt(2 * Math.PI);
+    private static double[] mask;
+    private static int height;
+    private static int width;
     
     /*
      * Accepts int[][][] array of RGB values, int blur radius, and double blur intensity.
      * Returns int[][][] array of RGB values.
      */
     public static int[][][] BlurRGB(int[][][] raw, int rad, double intens) {
-        double[] mask = new double[2 * rad + 1];
+        mask = new double[2 * rad + 1];
+        double intensSquared2 = 2 * intens * intens;
         double norm = 0.;
-        double sqrt2pi = Math.sqrt(2 * Math.PI);
-        int height = raw.length;
-        int width = raw[0].length;
+        height = raw.length;
+        width = raw[0].length;
         int[][][] outRGB = new int[height - 2 * rad][width - 2 * rad][3];
         
-        for (int x = -rad; x < rad + 1; x++) {   //Create Gaussian mask
-            double exp = Math.exp(-((x * x) / (2 * intens * intens)));
+        //Create Gaussian kernel
+        for (int x = -rad; x < rad + 1; x++) {
+            double exp = Math.exp(-((x * x) / intensSquared2));
             
-            //mask[x + rad] = (1 / (Math.sqrt(2 * Math.PI) * intens)) * exp;
-            mask[x + rad] = (1 / (sqrt2pi * intens)) * exp;
+            mask[x + rad] = (1 / (SQRT2PI * intens)) * exp;
             norm += mask[x + rad];
         }
         
-        for (int r = rad; r < height - rad; r++) {   //Convolve image with mask horizontally
+        //Convolve image with kernel horizontally
+        for (int r = rad; r < height - rad; r++) {
             for (int c = rad; c < width - rad; c++) {
                 double[] sum = new double[3];
                 
@@ -50,6 +55,7 @@ public class Gaussian {
                     }
                 }
                 
+                //Normalize channels after blur
                 for (int chan = 0; chan < 3; chan++) {
                     sum[chan] /= norm;
                     outRGB[r - rad][c - rad][chan] = (int) sum[chan];
@@ -57,7 +63,8 @@ public class Gaussian {
             }
         }
         
-        for (int r = rad; r < height - rad; r++) {   //Convolve image with mask vertically
+        //Convolve image with kernel vertically
+        for (int r = rad; r < height - rad; r++) {
             for (int c = rad; c < width - rad; c++) {
                 double[] sum = new double[3];
                 
@@ -67,6 +74,7 @@ public class Gaussian {
                     }
                 }
                 
+                //Normalize channels after blur
                 for (int chan = 0; chan < 3; chan++) {
                     sum[chan] /= norm;
                     outRGB[r - rad][c - rad][chan] = (int) sum[chan];
@@ -82,9 +90,10 @@ public class Gaussian {
      * Returns int[][] array of GS values.
      */
     public static int[][] BlurGS (int[][] raw, int rad, double intens) {
-        int height = raw.length;
-        int width = raw[0].length;
+        height = raw.length;
+        width = raw[0].length;
         
+        //Check parameters
         if (height < 2 * rad + 1 || width < 2 * rad + 1) {
             throw new IllegalArgumentException("ERROR: Image size too small for Gaussian blur!");
         }
@@ -93,19 +102,20 @@ public class Gaussian {
             throw new IllegalArgumentException("ERROR: Illegal Gaussian filter parameters!");
         }
         
-        double[] mask = new double[2 * rad + 1];
+        mask = new double[2 * rad + 1];
         double norm = 0.;
-        double sqrt2pi = Math.sqrt(2 * Math.PI);
         int[][] outGS = new int[height - 2 * rad][width - 2 * rad];
         
-        for (int x = -rad; x < rad + 1; x++) {   //Create Gaussian mask
+        //Create Gaussian kernel
+        for (int x = -rad; x < rad + 1; x++) {
             double exp = Math.exp(-((x * x) / (2 * intens * intens)));
             
-            mask[x + rad] = (1 / (sqrt2pi * intens)) * exp;
+            mask[x + rad] = (1 / (SQRT2PI * intens)) * exp;
             norm += mask[x + rad];
         }
         
-        for (int r = rad; r < height - rad; r++) {   //Convolve image with mask horizontally
+        //Convolve image with kernel horizontally
+        for (int r = rad; r < height - rad; r++) {
             for (int c = rad; c < width - rad; c++) {
                 double sum = 0.;
                 
@@ -113,12 +123,14 @@ public class Gaussian {
                     sum += (mask[mr + rad] * raw[r][c + mr]);
                 }
                 
+                //Normalize channel after blur
                 sum /= norm;
                 outGS[r - rad][c - rad] = (int) sum;
             }
         }
         
-        for (int r = rad; r < height - rad; r++) {   //Convolve image with mask vertically
+        //Convolve image with kernel vertically
+        for (int r = rad; r < height - rad; r++) {
             for (int c = rad; c < width - rad; c++) {
                 double sum = 0.;
                 
@@ -126,6 +138,7 @@ public class Gaussian {
                     sum += (mask[mr + rad] * raw[r + mr][c]);
                 }
                 
+                //Normalize channel after blur
                 sum /= norm;
                 outGS[r - rad][c - rad] = (int) sum;
             }
