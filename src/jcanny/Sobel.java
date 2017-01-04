@@ -19,21 +19,25 @@
 package jcanny;
 
 public class Sobel {
+    private static final int[][] MASKHORI = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
+    private static final int[][] MASKVERT = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };
+    private static int[][] out;
+    private static int height;
+    private static int width;
     
     /*
      * Accepts int[][] array of pixel values, convolves with horizontal Sobel,
      * and returns int[][] array of pixel values.
      */
     public static int[][] Horizontal(int[][] raw) {
-        int height = raw.length;
-        int width = raw[0].length;
+        height = raw.length;
+        width = raw[0].length;
         
         if (height < 3 || width < 3) {
             throw new IllegalArgumentException("ERROR: Image too small for Sobel Mask!");
         }
         
-        int[][] out = new int[height - 2][width - 2];
-        int[][] mask = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
+        out = new int[height - 2][width - 2];
         
         for (int r = 1; r < height - 1; r++) {
             for (int c = 1; c < width - 1; c++) {
@@ -41,7 +45,7 @@ public class Sobel {
                 
                 for (int kr = -1; kr < 2; kr++) {
                     for (int kc = -1; kc < 2; kc++) {
-                        sum += (mask[kr + 1][kc + 1] * raw[r + kr][c + kc]);
+                        sum += (MASKHORI[kr + 1][kc + 1] * raw[r + kr][c + kc]);
                     }
                 }
                 
@@ -57,15 +61,14 @@ public class Sobel {
      * and returns int[][] array of pixel values.
      */
     public static int[][] Vertical(int[][] raw) {
-        int height = raw.length;
-        int width = raw[0].length;
+        height = raw.length;
+        width = raw[0].length;
         
         if (height < 3 || width < 3) {
             throw new IllegalArgumentException("ERROR: Image too small for Sobel Mask!");
         }
         
-        int[][] out = new int[height - 2][width - 2];
-        int[][] mask = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };
+        out = new int[height - 2][width - 2];
         
         for (int r = 1; r < height - 1; r++) {
             for (int c = 1; c < width - 1; c++) {
@@ -73,7 +76,7 @@ public class Sobel {
                 
                 for (int kr = -1; kr < 2; kr++) {
                     for (int kc = -1; kc < 2; kc++) {
-                        sum += (mask[kr + 1][kc + 1] * raw[r + kr][c + kc]);
+                        sum += (MASKVERT[kr + 1][kc + 1] * raw[r + kr][c + kc]);
                     }
                 }
                 
