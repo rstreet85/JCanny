@@ -50,7 +50,7 @@ public class JCanny {
      * @throws Exception
      */
     public static BufferedImage CannyEdges(BufferedImage img, int numberDeviations, double fract) throws Exception {
-        if (fract <= 0 || fract >= 1) {  
+        if (fract < 0 || fract > 1) {  
             throw new IllegalArgumentException("ERROR: Hysteresis threshold ratio in range 0 - 1.0!");
         }
         
