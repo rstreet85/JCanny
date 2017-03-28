@@ -18,6 +18,14 @@
  */
 package jcanny;
 
+import java.io.File;
+import javax.imageio.ImageIO;
+
+/**
+ * Performs a Gaussian blur over n image with supplied parameters
+ * 
+ */
+
 public class Gaussian {
     private static final double SQRT2PI = Math.sqrt(2 * Math.PI);
     private static double[] mask;
@@ -29,9 +37,10 @@ public class Gaussian {
      * Returns int[][][] array of RGB values.
      */
     public static int[][][] BlurRGB(int[][][] raw, int rad, double intens) {
-        mask = new double[2 * rad + 1];
         double intensSquared2 = 2 * intens * intens;
+        double invIntensSqrPi = 1 / (SQRT2PI * intens);
         double norm = 0.;
+        mask = new double[2 * rad + 1];
         height = raw.length;
         width = raw[0].length;
         int[][][] outRGB = new int[height - 2 * rad][width - 2 * rad][3];
@@ -40,7 +49,7 @@ public class Gaussian {
         for (int x = -rad; x < rad + 1; x++) {
             double exp = Math.exp(-((x * x) / intensSquared2));
             
-            mask[x + rad] = (1 / (SQRT2PI * intens)) * exp;
+            mask[x + rad] = invIntensSqrPi * exp;
             norm += mask[x + rad];
         }
         
@@ -58,7 +67,7 @@ public class Gaussian {
                 //Normalize channels after blur
                 for (int chan = 0; chan < 3; chan++) {
                     sum[chan] /= norm;
-                    outRGB[r - rad][c - rad][chan] = (int) sum[chan];
+                    outRGB[r - rad][c - rad][chan] = (int) Math.round(sum[chan]);
                 }
             }
         }
@@ -77,7 +86,7 @@ public class Gaussian {
                 //Normalize channels after blur
                 for (int chan = 0; chan < 3; chan++) {
                     sum[chan] /= norm;
-                    outRGB[r - rad][c - rad][chan] = (int) sum[chan];
+                    outRGB[r - rad][c - rad][chan] = (int) Math.round(sum[chan]);
                 }
             }
         }
@@ -93,7 +102,7 @@ public class Gaussian {
         height = raw.length;
         width = raw[0].length;
         
-        //Check parameters
+        //Bounds checking
         if (height < 2 * rad + 1 || width < 2 * rad + 1) {
             throw new IllegalArgumentException("ERROR: Image size too small for Gaussian blur!");
         }
@@ -104,13 +113,14 @@ public class Gaussian {
         
         mask = new double[2 * rad + 1];
         double norm = 0.;
+        double invIntensSqrPi = 1 / (SQRT2PI * intens);
         int[][] outGS = new int[height - 2 * rad][width - 2 * rad];
         
         //Create Gaussian kernel
         for (int x = -rad; x < rad + 1; x++) {
             double exp = Math.exp(-((x * x) / (2 * intens * intens)));
             
-            mask[x + rad] = (1 / (SQRT2PI * intens)) * exp;
+            mask[x + rad] = invIntensSqrPi * exp;
             norm += mask[x + rad];
         }
         
@@ -125,7 +135,7 @@ public class Gaussian {
                 
                 //Normalize channel after blur
                 sum /= norm;
-                outGS[r - rad][c - rad] = (int) sum;
+                outGS[r - rad][c - rad] = (int) Math.round(sum);
             }
         }
         
@@ -140,7 +150,7 @@ public class Gaussian {
                 
                 //Normalize channel after blur
                 sum /= norm;
-                outGS[r - rad][c - rad] = (int) sum;
+                outGS[r - rad][c - rad] = (int) Math.round(sum);
             }
         }
         

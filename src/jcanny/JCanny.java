@@ -21,14 +21,14 @@ package jcanny;
 import java.awt.image.BufferedImage;
 
 public class JCanny {
-    private static final double GAUSSIAN_INTENSITY = 2.5;
-    private static final int GAUSSIAN_RADIUS = 10;
+    private static final int GAUSSIAN_RADIUS = 4;
+    private static final double GAUSSIAN_INTENSITY = 1.75;
     
-    private static int tHi;         //Hysteresis high threshold; Definitely edge pixels, do not examine
-    private static int tLo;         //Hysteresis low threshold; possible edge pixel, examine further.
     private static int stDev;       //Standard deviation in magnitude of image's pixels
     private static int mean;        //Mean of magnitude in image's pixels
     private static int numDev;      //Number of standard deviations above mean for high threshold
+    private static double tHi;      //Hysteresis high threshold; Definitely edge pixels, do not examine
+    private static double tLo;      //Hysteresis low threshold; possible edge pixel, examine further.
     private static double tFract;   //Low threshold is this fraction of high threshold
     private static int[][] dir;     //Gradient direction mask. Equals Math.atan2(gy/gx)
     private static int[][] gx;      //Mask resulting from horizontal 3x3 Sobel mask
@@ -75,8 +75,8 @@ public class JCanny {
      * Using horizontal & vertical Sobel convolutions, calculate gradient magnitude at each pixel
      */
     private static void Magnitude(int[][] gx, int[][] gy) {
-        int sum = 0;
-        int var = 0;
+        double sum = 0;
+        double var = 0;
         int height = gx.length;
         int width = gx[0].length;
         mag = new double[height][width];
@@ -89,7 +89,7 @@ public class JCanny {
             }
         }
         
-        mean = sum / (height * width);
+        mean = (int) Math.round(sum / ((double) height * width));
         
         //Get variance
         for (int r = 0; r < height; r++) {
@@ -100,7 +100,7 @@ public class JCanny {
             }
         }
         
-        stDev = (int) Math.sqrt(var / (height * width));
+        stDev = (int) Math.sqrt(var / ((double) height * width));
     }
     
     /**
@@ -116,8 +116,9 @@ public class JCanny {
             for (int c = 0; c < width; c++) {
                 double angle = Math.atan2(gy[r][c], gx[r][c]) * piRad;    //Convert radians to degrees
                 
+                //Check for negative angles
                 if (angle < 0) {
-                    angle += 360.;  //Check for negative angles
+                    angle += 360.;
                 }
                 
                 //Each pixels ACTUAL angle is examined and placed in 1 of four groups (for the four searched 45-degree neighbors)
@@ -146,24 +147,27 @@ public class JCanny {
                 int direction = dir[r][c];
                 double magnitude = mag[r][c];
                 
-                if (direction == 0) {
-                    if (magnitude < mag[r][c - 1] && magnitude < mag[r][c + 1]) {
-                        mag [r - 1][c - 1] = 0;
-                    }
-                } else if (direction == 45) {
-                    if (magnitude < mag[r - 1][c + 1] && magnitude < mag[r + 1][c - 1]) {
-                        mag [r - 1][c - 1] = 0;
-                    }
-                } else if (direction == 90) {
-                    if (magnitude < mag[r - 1][c] && magnitude < mag[r + 1][c]) {
-                        mag [r - 1][c - 1] = 0;
-                    }
-                } else if (direction == 135) {
-                    if (magnitude < mag[r - 1][c - 1] && magnitude < mag[r + 1][c + 1]) {
-                        mag [r - 1][c - 1] = 0;
-                    }
-                } else {
-                    throw new Exception("ERROR: Illegal edge direction!");
+                switch (direction) {
+                    case 0 :
+                        if (magnitude < mag[r][c - 1] && magnitude < mag[r][c + 1]) {
+                            mag [r - 1][c - 1] = 0;
+                        }
+                        break;
+                    case 45 :
+                        if (magnitude < mag[r - 1][c + 1] && magnitude < mag[r + 1][c - 1]) {
+                            mag [r - 1][c - 1] = 0;
+                        }
+                        break;
+                    case 90 :
+                        if (magnitude < mag[r - 1][c] && magnitude < mag[r + 1][c]) {
+                            mag [r - 1][c - 1] = 0;
+                        }
+                        break;
+                    case 135 :
+                        if (magnitude < mag[r - 1][c - 1] && magnitude < mag[r + 1][c + 1]) {
+                            mag [r - 1][c - 1] = 0;
+                        }
+                        break;
                 }
             }
         }
@@ -181,8 +185,8 @@ public class JCanny {
         int width = mag[0].length - 1;
         int[][] bin = new int[height - 1][width - 1];
         
-        tHi = mean + (numDev * stDev);  //Magnitude greater than or equal to high threshold is an edge pixel
-        tLo = (int) (tHi * tFract);     //Magnitude less than low threshold not an edge, equal or greater possible edge
+        tHi = mean + (numDev * stDev);    //Magnitude greater than or equal to high threshold is an edge pixel
+        tLo = tHi * tFract;               //Magnitude less than low threshold not an edge, equal or greater possible edge
         
         for (int r = 1; r < height; r++) {
             for (int c = 1; c < width; c++) {
@@ -190,7 +194,9 @@ public class JCanny {
                 
                 if (magnitude >= tHi) {
                     bin[r - 1][c - 1] = 255;
-                } else if (magnitude >= tLo) {
+                } else if (magnitude < tLo) {
+                    bin[r - 1][c - 1] = 0;
+                } else {
                     boolean connected = false;
                     
                     for (int nr = -1; nr < 2; nr++) {
@@ -202,8 +208,6 @@ public class JCanny {
                     }
                     
                     bin[r - 1][c - 1] = (connected) ? 255 : 0;
-                } else {
-                    bin[r - 1][c - 1] = 0;
                 }
             }
         }

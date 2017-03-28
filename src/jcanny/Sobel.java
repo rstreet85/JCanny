@@ -18,6 +18,12 @@
  */
 package jcanny;
 
+/**
+ * Class has instructions for performing horizontal & vertical Sobel convolutions
+ * on a grayscale image array
+ * 
+ */
+
 public class Sobel {
     private static final int[][] MASKHORI = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
     private static final int[][] MASKVERT = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };

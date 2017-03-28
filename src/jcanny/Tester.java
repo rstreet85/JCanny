@@ -22,11 +22,17 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 
+/**
+ * Demonstrates the use of the JCanny class
+ * 
+ */
+
 public class Tester {
+    //Canny parameters
+    private static final double CANNY_THRESHOLD_RATIO = .3; //Suggested range .2 - .4
+    private static final int CANNY_STD_DEV = 2;             //Range 1-3
     
-    private static final double CANNY_THRESHOLD_RATIO = .4; //Suggested range .2 - .4
-    private static final int CANNY_STD_DEV = 3;             //Range 1-3
-    
+    //I/O parameters
     private static String imgFileName;
     private static String imgOutFile = "";
     private static String imgExt;
