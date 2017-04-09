@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * @author Robert Streetman
  */
 package jcanny;
 
@@ -23,8 +22,9 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 /**
- * Demonstrates the use of the JCanny class
+ * This class demonstrates the usage of the JCanny Canny edge detector library.
  * 
+ * @author robert
  */
 
 public class Tester {

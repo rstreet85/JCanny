@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * @author Robert Streetman
  */
 package jcanny;
 
@@ -22,8 +21,9 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 /**
- * Performs a Gaussian blur over n image with supplied parameters
+ * This class contains methods for masking an image array with Gaussian masks.
  * 
+ * @author robert
  */
 
 public class Gaussian {
@@ -32,9 +32,12 @@ public class Gaussian {
     private static int height;
     private static int width;
     
-    /*
-     * Accepts int[][][] array of RGB values, int blur radius, and double blur intensity.
-     * Returns int[][][] array of RGB values.
+    /**
+     * 
+     * @param raw       int[][][], an array of RGB values to be blurred
+     * @param rad       int, the radius of the Gaussian filter (filter width = 2 * r + 1)
+     * @param intens    double, the intensity of the Gaussian blur
+     * @return outRGB   int[][][], an array of RGB values from blurring input image with Gaussian filter
      */
     public static int[][][] BlurRGB(int[][][] raw, int rad, double intens) {
         double intensSquared2 = 2 * intens * intens;
@@ -94,9 +97,12 @@ public class Gaussian {
         return outRGB;
     }
     
-    /*
-     * Accepts int[][] array of GS values, int blur radius, and double blur intensity.
-     * Returns int[][] array of GS values.
+    /**
+     * 
+     * @param raw       int[][], an array of grayscale values to be blurred
+     * @param rad       int, the radius of the Gaussian filter (filter width = 2 * r + 1)
+     * @param intens    double, the intensity of the Gaussian blur
+     * @return outRGB   int[][], an array of grayscale values from blurring input image with Gaussian filter
      */
     public static int[][] BlurGS (int[][] raw, int rad, double intens) {
         height = raw.length;

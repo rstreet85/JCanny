@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * @author Robert Streetman
  */
 package jcanny;
 
@@ -46,13 +45,12 @@ public class JCanny {
      *                          mean + 2 * std. dev: 95% of pixel magnitudes fall below this value
      *                          mean + 3 * std. dev: 99.7% of pixel magnitudes fall below this value
      * @param fract             Set low threshold as a fraction of the high threshold
-     * @return                  A binary image of the edges in the input image.
-     * @throws Exception
+     * @return edges            A binary image of the edges in the input image.
      */
-    public static BufferedImage CannyEdges(BufferedImage img, int numberDeviations, double fract) throws Exception {
-        if (fract < 0 || fract > 1) {  
-            throw new IllegalArgumentException("ERROR: Hysteresis threshold ratio in range 0 - 1.0!");
-        }
+    public static BufferedImage CannyEdges(BufferedImage img, int numberDeviations, double fract) {
+        //if (fract < 0 || fract > 1) {  
+        //    throw new IllegalArgumentException("ERROR: Hysteresis threshold ratio in range 0 - 1.0!");
+        //}
         
         int[][] raw = ImgIO.GSArray(img);
         int[][] blurred = Gaussian.BlurGS(raw, GAUSSIAN_RADIUS, GAUSSIAN_INTENSITY);
@@ -72,7 +70,11 @@ public class JCanny {
     }
     
     /**
-     * Using horizontal & vertical Sobel convolutions, calculate gradient magnitude at each pixel
+     * Send this method the horizontal and vertical Sobel convolutions to create the gradient magnitude image.
+     * 
+     * @param gx    int[][], horizontal Sobel convolution
+     * @param gy    int[][], vertical Sobel convolution
+     * @return void
      */
     private static void Magnitude(int[][] gx, int[][] gy) {
         double sum = 0;
@@ -104,7 +106,11 @@ public class JCanny {
     }
     
     /**
-     * Using horizontal & vertical Sobel convolutions, calculate gradient direction at each pixel
+     * Send this method the horizontal and vertical Sobel convolutions to create the gradient direction image.
+     * 
+     * @param gx    int[][], horizontal Sobel convolution
+     * @param gy    int[][], vertical Sobel convolution
+     * @return void
      */
     private static void Direction(int[][] gx, int[][] gy) {
         double piRad = 180 / Math.PI;
@@ -136,9 +142,11 @@ public class JCanny {
     }
     
     /**
-     * Using gradient magnitude & direction, suppress all pixels that are not greater than neighbors along direction 
+     * Call this method to use gradient direction and magnitude to suppress lesser pixels.
+     * 
+     * @return void
      */
-    private static void Suppression() throws Exception {
+    private static void Suppression() {
         int height = mag.length - 1;
         int width = mag[0].length - 1;
         
@@ -174,11 +182,9 @@ public class JCanny {
     }
     
     /**
-     * Eliminate 'false' edge pixels. A pixel is definitely an edge if its magnitude is greater than
-     * or equal to high threshold. If magnitude is less than low threshold, it is not an edge and is
-     * discarded. If magnitude is greater than or equal to low threshold AND lower than high threshold,
-     * pixel is edge if and only if it is connected to a pixel of magnitude greater than or equal to
-     * high threshold.
+     * Call this method to use an upper and lower threshold to decided which non-suppressed pixels are edges.
+     * 
+     * @return bin  int[][], the binary image showing edges in the original.
      */
     private static int[][] Hysteresis() {
         int height = mag.length - 1;

@@ -14,79 +14,79 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * @author Robert Streetman
  */
 package jcanny;
 
 /**
- * Class has instructions for performing horizontal & vertical Sobel convolutions
- * on a grayscale image array
+ * This class contains methods for masking an image array with horizontal and vertical Sobel masks.
  * 
+ * @author robert
  */
 
 public class Sobel {
-    private static final int[][] MASKHORI = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
-    private static final int[][] MASKVERT = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };
-    private static int[][] out;
-    private static int height;
-    private static int width;
+    private static final int[][] MASK_H = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
+    private static final int[][] MASK_V = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };
     
-    /*
-     * Accepts int[][] array of pixel values, convolves with horizontal Sobel,
-     * and returns int[][] array of pixel values.
+    /**
+     * Send this method an int[][] array of grayscale pixel values to get a an image resulting
+     * from the convolution of this image with the horizontal Sobel mask.
+     * 
+     * @param raw   int[][], array of grayscale pixel values 0-255
+     * @return out  int[][], output array of convolved image.
      */
     public static int[][] Horizontal(int[][] raw) {
-        height = raw.length;
-        width = raw[0].length;
+        int[][] out = null;
+        int height = raw.length;
+        int width = raw[0].length;
         
-        if (height < 3 || width < 3) {
-            throw new IllegalArgumentException("ERROR: Image too small for Sobel Mask!");
-        }
+        if (height > 2 && width > 2) {
+            out = new int[height - 2][width - 2];
         
-        out = new int[height - 2][width - 2];
-        
-        for (int r = 1; r < height - 1; r++) {
-            for (int c = 1; c < width - 1; c++) {
-                int sum = 0;
-                
-                for (int kr = -1; kr < 2; kr++) {
-                    for (int kc = -1; kc < 2; kc++) {
-                        sum += (MASKHORI[kr + 1][kc + 1] * raw[r + kr][c + kc]);
+            for (int r = 1; r < height - 1; r++) {
+                for (int c = 1; c < width - 1; c++) {
+                    int sum = 0;
+
+                    for (int kr = -1; kr < 2; kr++) {
+                        for (int kc = -1; kc < 2; kc++) {
+                            sum += (MASK_H[kr + 1][kc + 1] * raw[r + kr][c + kc]);
+                        }
                     }
+
+                    out[r - 1][c - 1] = sum;
                 }
-                
-                out[r - 1][c - 1] = sum;
             }
         }
         
         return out;
     }
     
-    /*
-     * Accepts int[][] array of pixel values, convolves with vertical Sobel,
-     * and returns int[][] array of pixel values.
+    /**
+     * Send this method an int[][] array of grayscale pixel values to get a an image resulting
+     * from the convolution of this image with the vertical Sobel mask.
+     * 
+     * @param raw   int[][], array of grayscale pixel values 0-255
+     * @return out  int[][], output array of convolved image.
      */
     public static int[][] Vertical(int[][] raw) {
-        height = raw.length;
-        width = raw[0].length;
+        int[][] out = null;
+        int height = raw.length;
+        int width = raw[0].length;
         
-        if (height < 3 || width < 3) {
-            throw new IllegalArgumentException("ERROR: Image too small for Sobel Mask!");
-        }
+        if (height > 2 || width > 2) {
+            out = new int[height - 2][width - 2];
         
-        out = new int[height - 2][width - 2];
-        
-        for (int r = 1; r < height - 1; r++) {
-            for (int c = 1; c < width - 1; c++) {
-                int sum = 0;
-                
-                for (int kr = -1; kr < 2; kr++) {
-                    for (int kc = -1; kc < 2; kc++) {
-                        sum += (MASKVERT[kr + 1][kc + 1] * raw[r + kr][c + kc]);
+            for (int r = 1; r < height - 1; r++) {
+                for (int c = 1; c < width - 1; c++) {
+                    int sum = 0;
+
+                    for (int kr = -1; kr < 2; kr++) {
+                        for (int kc = -1; kc < 2; kc++) {
+                            sum += (MASK_V[kr + 1][kc + 1] * raw[r + kr][c + kc]);
+                        }
                     }
+
+                    out[r - 1][c - 1] = sum;
                 }
-                
-                out[r - 1][c - 1] = sum;
             }
         }
         

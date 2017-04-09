@@ -14,94 +14,111 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * @author Robert Streetman
  */
 package jcanny;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * This class contains utility methods for transforming image data.
+ * 
+ * @author robert
+ */
+
 public class ImgIO {
     
-    /*
-     * Accepts BufferedImage, returns int[][][] array of RGB (0-255) values.
+    /**
+     * Send this method a BufferedImage to get an RGB array (int, value 0-255).
+     * 
+     * @param img   BufferedImage, the input image from which to extract RGB
+     * @return rgb  int[][][], a 3-dimension array of RGB values from image
+     * 
      */
     public static int[][][] RGBArray(BufferedImage img) {
-        if (img == null) {
-            throw new IllegalArgumentException("ERROR: Source image is null!");
-        }
-        
+        int[][][] rgb = null;
         int height = img.getHeight();
         int width = img.getWidth();
-        int[][][] rgb = new int[height][width][3];
         
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                rgb[i][j] = intRGB(img.getRGB(j, i));
+        if (height > 0 && width > 0) {
+            rgb = new int[height][width][3];
+
+            for (int row = 0; row < height; row++) {
+                for (int column = 0; column < width; column++) {
+                    rgb[row][column] = intRGB(img.getRGB(column, row));
+                }
             }
         }
         
         return rgb;
     }
     
-    /*
-     * Accepts int[][][] array of RGB values, returns BufferedImage
+    /**
+     * Send this method an array of RGB pixels (int) to get a BufferedImage.
+     * 
+     * @param raw   int[][][] representing RGB pixels of image.
+     * @return img  BufferedImage built from RGB array
      */
     public static BufferedImage RGBImg(int[][][] raw) {
+        BufferedImage img = null;
         int height = raw.length;
         int width = raw[0].length;
         
-        if (height < 1 || width < 1 || raw[0][0].length != 3) {
-            throw new IllegalArgumentException("ERROR: Malformed RGB array!");
-        }
-        
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                img.setRGB(j, i, (raw[i][j][0] << 16) | (raw[i][j][1] << 8) | (raw[i][j][2]));
+        if (height > 0 && width > 0 || raw[0][0].length == 3) {
+            img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+            for (int row = 0; row < height; row++) {
+                for (int column = 0; column < width; column++) {
+                    img.setRGB(column, row, (raw[row][column][0] << 16) | (raw[row][column][1] << 8) | (raw[row][column][2]));
+                }
             }
         }
         
         return img;
     }
     
-    /*
-     * Accepts BufferedImage, returns int[][] array of grayscale (0-255) values
+    /**
+     * Send this method a BufferedImage to get a grayscale array (int, value 0-255.
+     * 
+     * @param img   BufferedImage, the input image from which to extract grayscale
+     * @return gs   int[][] array of grayscale pixel values from image.
      */
     public static int[][] GSArray(BufferedImage img) {
-        if (img == null) {
-            throw new IllegalArgumentException("ERROR: Source image is null!");
-        }
-        
+        int[][] gs = null;
         int height = img.getHeight();
         int width = img.getWidth();
-        int[][] gs = new int[height][width];
         
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                gs[i][j] = intGS(img.getRGB(j, i));
+        if (height > 0 && width > 0) {
+            gs = new int[height][width];
+
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    int bits = img.getRGB(j, i);
+                    gs[i][j] = (((bits >> 16) & 0xff) + ((bits >> 8) & 0xff) + (bits & 0xff)) / 3;
+                }
             }
         }
         
         return gs;
     }
     
-    /*
-     * Accepts int[][] array of grayscale values, returns BufferedImage
+    /**
+     * Send this method an array of grayscale pixels (int) to get a BufferedImage
+     * 
+     * @param raw   int[][] representing grayscale pixels of image.
+     * @return img  BufferedImage built from grayscale array 
      */
     public static BufferedImage GSImg(int[][] raw) {
+        BufferedImage img = null;
         int height = raw.length;
         int width = raw[0].length;
         
-        if (height < 1 || width < 1) {
-            throw new IllegalArgumentException("ERROR: Malformed grayscale array!");
-        }
-        
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                img.setRGB(j, i, (raw[i][j] << 16) | (raw[i][j] << 8) | (raw[i][j]));
+        if (height > 0 && width > 0) {
+            img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    img.setRGB(j, i, (raw[i][j] << 16) | (raw[i][j] << 8) | (raw[i][j]));
+                }
             }
         }
         
@@ -318,19 +335,15 @@ public class ImgIO {
         return out;
     }
     
-    /*
-     * Accepts 32-bit pixel value from BufferedImage, returns int[][][] array of RGB values
+    /**
+     * Send this method a 32-bit pixel value from BufferedImage to get the RGB
+     * 
+     * @param bits  int, 32-bit BufferedImage pixel value
+     * @return rgb  int[], RGB values extracted from pixel  
      */
     private static int[] intRGB(int bits) {
-        int[] out = { (bits >> 16) & 0xff, (bits >> 8) & 0xff, bits & 0xff };
-        return out;
-    }
-    
-    /*
-     * Accepts 32-bit pixel value from BufferedImage, returns int[][] array of grayscale values
-     */
-    private static int intGS(int bits) {
-        return (((bits >> 16) & 0xff) + ((bits >> 8) & 0xff) + (bits & 0xff)) / 3;
+        int[] rgb = { (bits >> 16) & 0xff, (bits >> 8) & 0xff, bits & 0xff };
+        return rgb;
     }
     
     /*
