@@ -48,10 +48,6 @@ public class JCanny {
      * @return edges            A binary image of the edges in the input image.
      */
     public static BufferedImage CannyEdges(BufferedImage img, int numberDeviations, double fract) {
-        //if (fract < 0 || fract > 1) {  
-        //    throw new IllegalArgumentException("ERROR: Hysteresis threshold ratio in range 0 - 1.0!");
-        //}
-        
         int[][] raw = ImgIO.GSArray(img);
         int[][] blurred = Gaussian.BlurGS(raw, GAUSSIAN_RADIUS, GAUSSIAN_INTENSITY);
         numDev = numberDeviations;
@@ -60,9 +56,9 @@ public class JCanny {
         gx = Sobel.Horizontal(blurred);  //Convolved with 3x3 horizontal Sobel mask
         gy = Sobel.Vertical(blurred);    //Convolved with 3x3 vertical Sobel mask
         
-        Magnitude(gx, gy);    //Find the gradient magnitude at each pixel
-        Direction(gx, gy);    //Find the gradient direction at each pixel
-        Suppression();        //Using the direction and magnitude images, identify candidate points
+        Magnitude();    //Find the gradient magnitude at each pixel
+        Direction();    //Find the gradient direction at each pixel
+        Suppression();  //Using the direction and magnitude images, identify candidate points
         
         BufferedImage edges = ImgIO.GSImg(Hysteresis());
         
@@ -72,15 +68,14 @@ public class JCanny {
     /**
      * Send this method the horizontal and vertical Sobel convolutions to create the gradient magnitude image.
      * 
-     * @param gx    int[][], horizontal Sobel convolution
-     * @param gy    int[][], vertical Sobel convolution
      * @return void
      */
-    private static void Magnitude(int[][] gx, int[][] gy) {
+    private static void Magnitude() {
         double sum = 0;
         double var = 0;
         int height = gx.length;
         int width = gx[0].length;
+        double pixelTotal = height * width;
         mag = new double[height][width];
         
         for (int r = 0; r < height; r++) {
@@ -91,31 +86,29 @@ public class JCanny {
             }
         }
         
-        mean = (int) Math.round(sum / ((double) height * width));
+        mean = (int) Math.round(sum / pixelTotal);
         
         //Get variance
         for (int r = 0; r < height; r++) {
             for (int c = 0; c < width; c++) {
-                double magnitude = mag[r][c];
+                double diff = mag[r][c] - mean;
                 
-                var += (magnitude - mean) * (magnitude - mean);
+                var += (diff * diff);
             }
         }
         
-        stDev = (int) Math.sqrt(var / ((double) height * width));
+        stDev = (int) Math.sqrt(var / pixelTotal);
     }
     
     /**
      * Send this method the horizontal and vertical Sobel convolutions to create the gradient direction image.
      * 
-     * @param gx    int[][], horizontal Sobel convolution
-     * @param gy    int[][], vertical Sobel convolution
      * @return void
      */
-    private static void Direction(int[][] gx, int[][] gy) {
-        double piRad = 180 / Math.PI;
+    private static void Direction() {
         int height = gx.length;
         int width = gx[0].length;
+        double piRad = 180 / Math.PI;
         dir = new int[height][width];
         
         for (int r = 0; r < height; r++) {
@@ -128,6 +121,7 @@ public class JCanny {
                 }
                 
                 //Each pixels ACTUAL angle is examined and placed in 1 of four groups (for the four searched 45-degree neighbors)
+                //Reorder this for optimization
                 if (angle <= 22.5 || (angle >= 157.5 && angle <= 202.5) || angle >= 337.5) {
                     dir[r][c] = 0;      //Check left and right neighbors
                 } else if ((angle >= 22.5 && angle <= 67.5) || (angle >= 202.5 && angle <= 247.5)) {
@@ -152,10 +146,9 @@ public class JCanny {
         
         for (int r = 1; r < height; r++) {
             for (int c = 1; c < width; c++) {
-                int direction = dir[r][c];
                 double magnitude = mag[r][c];
                 
-                switch (direction) {
+                switch (dir[r][c]) {
                     case 0 :
                         if (magnitude < mag[r][c - 1] && magnitude < mag[r][c + 1]) {
                             mag [r - 1][c - 1] = 0;
@@ -202,7 +195,7 @@ public class JCanny {
                     bin[r - 1][c - 1] = 255;
                 } else if (magnitude < tLo) {
                     bin[r - 1][c - 1] = 0;
-                } else {
+                } else {    //This could be separate method or lambda
                     boolean connected = false;
                     
                     for (int nr = -1; nr < 2; nr++) {
