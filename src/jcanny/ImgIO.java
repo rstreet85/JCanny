@@ -93,7 +93,9 @@ public class ImgIO {
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
                     int bits = img.getRGB(j, i);
-                    gs[i][j] = (((bits >> 16) & 0xff) + ((bits >> 8) & 0xff) + (bits & 0xff)) / 3;
+                    //Not sure if precision is needed, but adding for now
+                    long avg = Math.round((((bits >> 16) & 0xff) + ((bits >> 8) & 0xff) + (bits & 0xff)) / 3.0);
+                    gs[i][j] = (int) avg;
                 }
             }
         }
@@ -127,6 +129,11 @@ public class ImgIO {
     
     /*
      * Accepts BufferedImage, returns double[][][] array of HSV values
+     */
+    /**
+     * Currently unsupported - Send this method a BufferedImage to get a double[][][] HSV array.
+     * 
+     * @deprecated
      */
     public static double[][][] HSVArray(BufferedImage img) {
         if (img == null) {
@@ -182,6 +189,11 @@ public class ImgIO {
     /*
      * Accepts BufferedImage, returns double[][][] array of HSI values
      */
+    /**
+     * Currently unsupported - Send this method a BufferedImage to get a double[][][] HSI array.
+     * 
+     * @deprecated
+     */
     public static double[][][] HSIArray(BufferedImage img) {
         if (img == null) {
             throw new IllegalArgumentException("ERROR: Source image is null!");
@@ -217,6 +229,11 @@ public class ImgIO {
     
     /*
      * Accepts BufferedImage, returns double[][][] array of TSL values
+     */
+    /**
+     * Currently unsupported - Send this method a BufferedImage to get a double[][][] TSL array.
+     * 
+     * @deprecated
      */
     public static double[][][] TSLArray(BufferedImage img) {
         if (img == null) {
@@ -255,6 +272,11 @@ public class ImgIO {
     /*
      * Accepts double[][][] array of HSV values, returns BufferedImage
      */
+    /**
+     * Currently unsupported - Send this method a double[][][] HSV array to get an RGB BufferedImage.
+     * 
+     * @deprecated
+     */
     public static BufferedImage HSVImg(double[][][] raw) {
         int height = raw.length;
         int width = raw[0].length;
@@ -283,6 +305,11 @@ public class ImgIO {
     /*
      * Accepts double[][][] array of HSI values, returns BufferedImage
      */
+    /**
+     * Currently unsupported - Send this method a double[][][] HSI array to get an RGB BufferedImage.
+     * 
+     * @deprecated
+     */
     public static BufferedImage HSIImg(double[][][] raw) {
         int height = raw.length;
         int width = raw[0].length;
@@ -310,6 +337,11 @@ public class ImgIO {
     
     /*
      * Accepts BufferedImage, returns double[][][] array of YCbCr values
+     */
+    /**
+     * Currently unsupported - Send this method a BufferedImage to get a double[][][] YCbCr array.
+     * 
+     * @deprecated
      */
     public static double[][][] YCbCrArray(BufferedImage img) {
         if (img == null) {
@@ -343,6 +375,16 @@ public class ImgIO {
      */
     private static int[] intRGB(int bits) {
         int[] rgb = { (bits >> 16) & 0xff, (bits >> 8) & 0xff, bits & 0xff };
+        
+        //Don't propagate bad pixel values
+        for (int i = 0; i < 3; i++) {
+            if (rgb[i] < 0) {
+                rgb[i] = 0;
+            } else if (rgb[i] > 255) {
+                rgb[i] = 255;
+            }
+        }
+        
         return rgb;
     }
     

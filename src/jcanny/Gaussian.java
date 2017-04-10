@@ -17,22 +17,21 @@
  */
 package jcanny;
 
-import java.io.File;
-import javax.imageio.ImageIO;
-
 /**
- * This class contains methods for masking an image array with Gaussian masks.
+ * This class contains methods for masking image arrays with Gaussian masks.
  * 
  * @author robert
  */
 
 public class Gaussian {
     private static final double SQRT2PI = Math.sqrt(2 * Math.PI);
-    private static double[] mask;
-    private static int height;
-    private static int width;
+    //private static double[] mask;
+    //private static int height;
+    //private static int width;
     
     /**
+     * Send this method an int[][][] RGB array, an int radius, and a double intensity to blur the
+     * image with a Gaussian filter of that radius and intensity.
      * 
      * @param raw       int[][][], an array of RGB values to be blurred
      * @param rad       int, the radius of the Gaussian filter (filter width = 2 * r + 1)
@@ -40,12 +39,12 @@ public class Gaussian {
      * @return outRGB   int[][][], an array of RGB values from blurring input image with Gaussian filter
      */
     public static int[][][] BlurRGB(int[][][] raw, int rad, double intens) {
+        int height = raw.length;
+        int width = raw[0].length;
         double intensSquared2 = 2 * intens * intens;
         double invIntensSqrPi = 1 / (SQRT2PI * intens);
         double norm = 0.;
-        mask = new double[2 * rad + 1];
-        height = raw.length;
-        width = raw[0].length;
+        double[] mask = new double[2 * rad + 1];
         int[][][] outRGB = new int[height - 2 * rad][width - 2 * rad][3];
         
         //Create Gaussian kernel
@@ -98,6 +97,8 @@ public class Gaussian {
     }
     
     /**
+     * Send this method an int[][] grayscale array, an int radius, and a double intensity to blur the
+     * image with a Gaussian filter of that radius and intensity.
      * 
      * @param raw       int[][], an array of grayscale values to be blurred
      * @param rad       int, the radius of the Gaussian filter (filter width = 2 * r + 1)
@@ -105,8 +106,8 @@ public class Gaussian {
      * @return outRGB   int[][], an array of grayscale values from blurring input image with Gaussian filter
      */
     public static int[][] BlurGS (int[][] raw, int rad, double intens) {
-        height = raw.length;
-        width = raw[0].length;
+        int height = raw.length;
+        int width = raw[0].length;
         
         //Bounds checking
         if (height < 2 * rad + 1 || width < 2 * rad + 1) {
@@ -117,7 +118,7 @@ public class Gaussian {
             throw new IllegalArgumentException("ERROR: Illegal Gaussian filter parameters!");
         }
         
-        mask = new double[2 * rad + 1];
+        double[] mask = new double[2 * rad + 1];
         double norm = 0.;
         double invIntensSqrPi = 1 / (SQRT2PI * intens);
         int[][] outGS = new int[height - 2 * rad][width - 2 * rad];
