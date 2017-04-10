@@ -24,6 +24,7 @@ package jcanny;
  */
 
 public class Sobel {
+    //The masks for each Sobel convolution
     private static final int[][] MASK_H = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
     private static final int[][] MASK_V = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };
     

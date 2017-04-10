@@ -19,9 +19,17 @@ package jcanny;
 
 /**
  * This class contains methods for masking image arrays with Gaussian masks.
+ * Instead of convolving each pixel pixel with a 2D Gaussian kernel, it convolves
+ * the image horizontally and vertically with a 1D Gaussian kernel.
  * 
  * @author robert
  */
+
+/*
+TODO
+-These can be combined into single method with more generic implementation
+-Use height/width and radius for bounds checking
+*/
 
 public class Gaussian {
     //This seems like a very costly operation, only doing this once.

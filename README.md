@@ -5,9 +5,10 @@ A pure Java implementation of John Canny's 1986 edge detector, including a Gauss
 **Command-line arguments:** *-fileName* *-outputFileExtension*
 
 ##To-Do
-- Allow user to (optionally) set the paramters for Gaussian filter & hysteresis for optimization purposes
+- Allow user to set the paramters for Gaussian filter & hysteresis for optimization purposes
 - Add Pratt figure of merit functionality, so that user can designate what edges they want, and determine how closely the output from parameters match.
 - Explore additional preprocessing methods, such as white balance.
+- Current edge image is smaller than original, add buffer to fix this
 
 ###Support This Project
 :+1: If you wish to help fund further development of this project, feel free to donate to 1fyg8vmfoD2WkhSBK7BFRNgYEzbe1Lpyf :tea::coffee::beer:

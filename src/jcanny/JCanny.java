@@ -48,19 +48,25 @@ public class JCanny {
      * @return edges            A binary image of the edges in the input image.
      */
     public static BufferedImage CannyEdges(BufferedImage img, int numberDeviations, double fract) {
-        int[][] raw = ImgIO.GSArray(img);
-        int[][] blurred = Gaussian.BlurGS(raw, GAUSSIAN_RADIUS, GAUSSIAN_INTENSITY);
+        int[][] raw = null;
+        int[][] blurred = null;
+        BufferedImage edges = null;
         numDev = numberDeviations;
         tFract = fract;
         
-        gx = Sobel.Horizontal(blurred);  //Convolved with 3x3 horizontal Sobel mask
-        gy = Sobel.Vertical(blurred);    //Convolved with 3x3 vertical Sobel mask
-        
-        Magnitude();    //Find the gradient magnitude at each pixel
-        Direction();    //Find the gradient direction at each pixel
-        Suppression();  //Using the direction and magnitude images, identify candidate points
-        
-        BufferedImage edges = ImgIO.GSImg(Hysteresis());
+        //More specific bounds checking later
+        if (img != null && numberDeviations > 0 && fract > 0) {
+            raw = ImgIO.GSArray(img);
+            blurred = Gaussian.BlurGS(raw, GAUSSIAN_RADIUS, GAUSSIAN_INTENSITY);
+            gx = Sobel.Horizontal(blurred);  //Convolved with 3x3 horizontal Sobel mask
+            gy = Sobel.Vertical(blurred);    //Convolved with 3x3 vertical Sobel mask
+
+            Magnitude();    //Find the gradient magnitude at each pixel
+            Direction();    //Find the gradient direction at each pixel
+            Suppression();  //Using the direction and magnitude images, identify candidate points
+
+            edges = ImgIO.GSImg(Hysteresis());
+        }
         
         return edges;
     }
