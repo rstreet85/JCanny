@@ -5,6 +5,9 @@ A pure Java implementation of John Canny's 1986 edge detector, including a Gauss
 **Command-line arguments:** *-fileName* *-outputFileExtension*
 
 ## Example:
+```
+test/test1.png png
+```
 ![Original Image](https://github.com/rstreet85/JCanny/blob/master/test/test1.png)
 ![Output Image](https://github.com/rstreet85/JCanny/blob/master/test/test1_canny.png)
 
