@@ -5,7 +5,7 @@ A pure Java implementation of John Canny's 1986 edge detector, including a Gauss
 **Command-line arguments:** *-fileName* *-outputFileExtension*
 
 ## Code Usage
-```
+```java
 //Sample JCanny usage
 try {
     BufferedImage input = ImageIO.read(new File(imgFileName));
