@@ -20,8 +20,8 @@ package jcanny;
 import java.awt.image.BufferedImage;
 
 public class JCanny {
-    private static final int GAUSSIAN_RADIUS = 4;
-    private static final double GAUSSIAN_INTENSITY = 1.75;
+    private static final int GAUSSIAN_RADIUS = 7;
+    private static final double GAUSSIAN_INTENSITY = 1.5;
     
     private static int stDev;       //Standard deviation in magnitude of image's pixels
     private static int mean;        //Mean of magnitude in image's pixels
