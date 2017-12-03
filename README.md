@@ -7,13 +7,13 @@ A pure Java implementation of John Canny's 1986 edge detector, including a Gauss
 ## Code Usage
 ```
 //Sample JCanny usage
-        try {
-            BufferedImage input = ImageIO.read(new File(imgFileName));
-            BufferedImage output = JCanny.CannyEdges(input, CANNY_STD_DEV, CANNY_THRESHOLD_RATIO);
-            ImageIO.write(output, imgExt, new File(imgOutFile));
-        } catch (Exception ex) {
-            System.out.println("ERROR ACCESING IMAGE FILE:\n" + ex.getMessage());
-        }
+try {
+    BufferedImage input = ImageIO.read(new File(imgFileName));
+    BufferedImage output = JCanny.CannyEdges(input, CANNY_STD_DEV, CANNY_THRESHOLD_RATIO);
+    ImageIO.write(output, imgExt, new File(imgOutFile));
+} catch (Exception ex) {
+    System.out.println("ERROR ACCESING IMAGE FILE:\n" + ex.getMessage());
+}
 ```
 
 ## Example:
