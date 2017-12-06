@@ -56,7 +56,7 @@ public class JCanny {
         
         //More specific bounds checking later
         if (img != null && numberDeviations > 0 && fract > 0) {
-            raw = ImgIO.GSArray(img);
+            raw = ImageUtils.GSArray(img);
             blurred = Gaussian.BlurGS(raw, GAUSSIAN_RADIUS, GAUSSIAN_INTENSITY);
             gx = Sobel.Horizontal(blurred);  //Convolved with 3x3 horizontal Sobel mask
             gy = Sobel.Vertical(blurred);    //Convolved with 3x3 vertical Sobel mask
@@ -65,7 +65,7 @@ public class JCanny {
             Direction();    //Find the gradient direction at each pixel
             Suppression();  //Using the direction and magnitude images, identify candidate points
 
-            edges = ImgIO.GSImg(Hysteresis());
+            edges = ImageUtils.GSImg(Hysteresis());
         }
         
         return edges;

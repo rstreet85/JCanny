@@ -25,7 +25,7 @@ import java.awt.image.BufferedImage;
  * @author robert
  */
 
-public class ImgIO {
+public class ImageUtils {
     
     /**
      * Send this method a BufferedImage to get an RGB array (int, value 0-255).
